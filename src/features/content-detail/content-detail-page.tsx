@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { contentService } from '../../api/content-service'
 import type { Content } from '../../api/schemas'
@@ -6,7 +6,12 @@ import { Button } from '../../components/ui/button'
 import { Skeleton } from '../../components/ui/skeleton'
 import { CommentsPanel } from './comments-panel'
 import { RichPreview } from './rich-preview'
-import { MetricsPanel } from './metrics-panel'
+import { ErrorBoundary, getErrorMessage } from 'react-error-boundary'
+import { ErrorState } from '@/components/error-state'
+
+const MetricsPanel = lazy(() =>
+  import('./metrics-panel').then((module) => ({ default: module.MetricsPanel }))
+)
 
 export function ContentDetailPage() {
   const { contentId } = useParams()
@@ -53,7 +58,15 @@ export function ContentDetailPage() {
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.75fr)]">
         <CommentsPanel contentId={content.id} />
 
-        <MetricsPanel contentId={content.id} />
+        <ErrorBoundary
+          fallbackRender={({ error }) => (
+            <ErrorState message={getErrorMessage(error)} />
+          )}
+        >
+          <Suspense fallback={<Skeleton className="h-46 w-full" />}>
+            <MetricsPanel contentId={content.id} />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   )
