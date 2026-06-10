@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { contentService } from '../../api/content-service'
 import type { Content, ContentStatus } from '../../api/schemas'
 import { EmptyState } from '../../components/empty-state'
@@ -14,6 +14,8 @@ export function ContentLibraryPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const deferredSearch = useDeferredValue(search, '')
+  const isSearchStale = deferredSearch !== search
   const [status, setStatus] = useState<ContentStatus | 'all'>('all')
 
   useEffect(() => {
@@ -64,9 +66,9 @@ export function ContentLibraryPage() {
       const matchesStatus = status === 'all' || content.status === status
       const haystack =
         `${content.title} ${content.description} ${content.tags.join(' ')}`.toLowerCase()
-      return matchesStatus && haystack.includes(search.toLowerCase())
+      return matchesStatus && haystack.includes(deferredSearch.toLowerCase())
     })
-  }, [contents, search, status])
+  }, [contents, deferredSearch, status])
 
   const publishedCount = contents.filter(
     (content) => content.status === 'published'
@@ -114,7 +116,9 @@ export function ContentLibraryPage() {
       ) : isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : filteredContents.length > 0 ? (
-        <ContentList contents={filteredContents} />
+        <div className={isSearchStale ? 'pointer-events-none opacity-50' : ''}>
+          <ContentList contents={filteredContents} />
+        </div>
       ) : (
         <EmptyState
           title="Nenhum conteúdo encontrado"
@@ -127,11 +131,15 @@ export function ContentLibraryPage() {
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <Card className="border-studio-border bg-studio-card/85">
-      <CardContent className="p-4">
-        <p className="text-sm text-studio-muted">{label}</p>
-        <p className="mt-2 text-3xl font-semibold">{value}</p>
-      </CardContent>
-    </Card>
+    <>
+      <title>Content Studio - Biblioteca</title>
+
+      <Card className="border-studio-border bg-studio-card/85">
+        <CardContent className="p-4">
+          <p className="text-sm text-studio-muted">{label}</p>
+          <p className="mt-2 text-3xl font-semibold">{value}</p>
+        </CardContent>
+      </Card>
+    </>
   )
 }

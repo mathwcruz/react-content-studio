@@ -68,39 +68,43 @@ export function FeedbackPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
-            Moderação
-          </p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-            Feedback
-          </h2>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {feedbackFilterOptions.map((option) => (
-            <Button
-              key={option}
-              type="button"
-              size="sm"
-              variant={status === option ? 'default' : 'outline'}
-              onClick={() => setStatus(option)}
-            >
-              {feedbackFilterLabels[option]}
-            </Button>
-          ))}
-        </div>
-      </div>
+    <>
+      <title>Content Studio - Feedbacks</title>
 
-      {error ? (
-        <ErrorState message={error} onRetry={handleRetry} />
-      ) : isLoading ? (
-        <Skeleton className="h-64 w-full" />
-      ) : (
-        <FeedbackList comments={filteredComments} onChange={handleChange} />
-      )}
-    </div>
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
+              Moderação
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+              Feedback
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {feedbackFilterOptions.map((option) => (
+              <Button
+                key={option}
+                type="button"
+                size="sm"
+                variant={status === option ? 'default' : 'outline'}
+                onClick={() => setStatus(option)}
+              >
+                {feedbackFilterLabels[option]}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {error ? (
+          <ErrorState message={error} onRetry={handleRetry} />
+        ) : isLoading ? (
+          <Skeleton className="h-64 w-full" />
+        ) : (
+          <FeedbackList comments={filteredComments} onChange={handleChange} />
+        )}
+      </div>
+    </>
   )
 }
 

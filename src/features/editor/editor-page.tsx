@@ -27,16 +27,20 @@ export function EditorPage() {
   if (!content) return <p>Conteúdo não encontrado.</p>
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
-          Editor
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-          {content.title}
-        </h2>
+    <>
+      <title>Content Studio - Editor</title>
+
+      <div className="space-y-6">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
+            Editor
+          </p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+            {content.title}
+          </h2>
+        </div>
+        <ContentForm key={content.id} content={content} onSave={setContent} />
       </div>
-      <ContentForm key={content.id} content={content} onSave={setContent} />
-    </div>
+    </>
   )
 }

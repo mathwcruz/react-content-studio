@@ -137,11 +137,15 @@ export function DashboardPage() {
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <Card className="border-studio-border bg-studio-card/85">
-      <CardContent className="p-4">
-        <p className="text-sm text-studio-muted">{label}</p>
-        <p className="mt-2 text-3xl font-semibold">{value}</p>
-      </CardContent>
-    </Card>
+    <>
+      <title>Content Studio - Dashboard</title>
+
+      <Card className="border-studio-border bg-studio-card/85">
+        <CardContent className="p-4">
+          <p className="text-sm text-studio-muted">{label}</p>
+          <p className="mt-2 text-3xl font-semibold">{value}</p>
+        </CardContent>
+      </Card>
+    </>
   )
 }
