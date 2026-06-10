@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton'
 import { metricsService } from '../../api/metrics-service'
 import {
   Card,
@@ -7,24 +6,23 @@ import {
   CardTitle,
 } from '../../components/ui/card'
 import { formatCompactNumber, formatPercentage } from '../../lib/format'
-import { useEffect, useState } from 'react'
-import type { Metrics } from '@/api/schemas'
+import { use } from 'react'
+
+const cachedMetricsPromises = new Map<
+  string,
+  ReturnType<typeof metricsService.getMetrics>
+>()
+
+function getMetrics(contentId: string) {
+  const cached = cachedMetricsPromises.get(contentId)
+  if (cached) return cached
+  const promise = metricsService.getMetrics(contentId)
+  cachedMetricsPromises.set(contentId, promise)
+  return promise
+}
 
 export function MetricsPanel({ contentId }: { contentId: string }) {
-  const [metrics, setMetrics] = useState<Metrics | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    let isMounted = true
-    metricsService.getMetrics(contentId).then((data) => {
-      if (!isMounted) return
-      setMetrics(data)
-      setIsLoading(false)
-    })
-    return () => {
-      isMounted = false
-    }
-  }, [contentId])
+  const metrics = use(getMetrics(contentId))
 
   return (
     <Card className="border-studio-border bg-studio-card/85">
@@ -32,9 +30,7 @@ export function MetricsPanel({ contentId }: { contentId: string }) {
         <CardTitle>Métricas</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-28 w-full" />
-        ) : !metrics ? (
+        {!metrics ? (
           <p className="rounded-xl border border-dashed border-studio-border p-4 text-sm text-studio-muted">
             Sem métricas disponíveis para este conteúdo.
           </p>
