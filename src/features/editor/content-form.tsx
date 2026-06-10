@@ -1,4 +1,10 @@
-import { useActionState, useEffect, useMemo, useState } from 'react'
+import {
+  useActionState,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useState,
+} from 'react'
 import { contentService } from '../../api/content-service'
 import type { Content, ContentStatus } from '../../api/schemas'
 import { Button } from '../../components/ui/button'
@@ -119,38 +125,38 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
       .filter(Boolean),
   }
 
-  useEffect(() => {
-    function saveDraft() {
-      const normalizedDraft = normalizeDraft(draftValue)
+  const saveDraft = useEffectEvent(() => {
+    const normalizedDraft = normalizeDraft(draftValue)
 
-      if (normalizedDraft === originalDraftSnapshot) {
-        if (!draftToRestore) {
-          clearLocalDraft(content.id)
-          setSavedAt(null)
-        }
-        return
+    if (normalizedDraft === originalDraftSnapshot) {
+      if (!draftToRestore) {
+        clearLocalDraft(content.id)
+        setSavedAt(null)
       }
-
-      const storedDraft = readLocalDraft(content.id)
-      if (storedDraft && normalizeDraft(storedDraft) === normalizedDraft) {
-        return
-      }
-
-      const draft = { ...draftValue, savedAt: new Date().toISOString() }
-      writeLocalDraft(content.id, draft)
-      setDraftToRestore(null)
-      setSavedAt(
-        new Date(draft.savedAt).toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })
-      )
+      return
     }
 
+    const storedDraft = readLocalDraft(content.id)
+    if (storedDraft && normalizeDraft(storedDraft) === normalizedDraft) {
+      return
+    }
+
+    const draft = { ...draftValue, savedAt: new Date().toISOString() }
+    writeLocalDraft(content.id, draft)
+    setDraftToRestore(null)
+    setSavedAt(
+      new Date(draft.savedAt).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    )
+  })
+
+  useEffect(() => {
     const interval = window.setInterval(saveDraft, 3000)
     return () => window.clearInterval(interval)
-  }, [content.id, draftValue, originalDraftSnapshot, draftToRestore])
+  }, [content.id])
 
   function handleRestoreDraft() {
     if (!draftToRestore) return
