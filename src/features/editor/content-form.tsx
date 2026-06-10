@@ -1,4 +1,5 @@
 import {
+  Activity,
   useActionState,
   useEffect,
   useEffectEvent,
@@ -222,7 +223,13 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
             : 'grid gap-5'
         }
       >
-        {(layoutMode === 'form' || layoutMode === 'split') && (
+        <Activity
+          mode={
+            layoutMode === 'form' || layoutMode === 'split'
+              ? 'visible'
+              : 'hidden'
+          }
+        >
           <Card className="border-studio-border bg-studio-card/90">
             <CardHeader>
               <CardTitle>Editar conteúdo</CardTitle>
@@ -333,11 +340,17 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
               </form>
             </CardContent>
           </Card>
-        )}
+        </Activity>
 
-        {(layoutMode === 'preview' || layoutMode === 'split') && (
+        <Activity
+          mode={
+            layoutMode === 'preview' || layoutMode === 'split'
+              ? 'visible'
+              : 'hidden'
+          }
+        >
           <EditorPreviewPanel content={preview} />
-        )}
+        </Activity>
       </div>
     </div>
   )
