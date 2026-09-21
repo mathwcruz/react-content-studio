@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { contentService } from '../../api/content-service'
+import { useActionState, useEffect, useMemo, useState } from 'react'
+
 import type { Content, ContentStatus } from '../../api/schemas'
 import { Button } from '../../components/ui/button'
 import {
@@ -24,6 +24,8 @@ import {
   writeLocalDraft,
   type LocalDraft,
 } from './local-draft'
+import { ContentSubmitButton } from './content-submit-button'
+import { contentService } from '@/api/content-service'
 
 type ContentFormProps = {
   content: Content
@@ -57,7 +59,20 @@ function normalizeDraft(draft: Omit<LocalDraft, 'savedAt'>) {
   })
 }
 
+type ContentPublishState = {
+  message: string | null
+  error: string | null
+}
+
 export function ContentForm({ content, onSave }: ContentFormProps) {
+  const [formState, formAction] = useActionState<ContentPublishState>(
+    publishContentAction,
+    {
+      message: null,
+      error: null,
+    }
+  )
+
   const [layoutMode, setLayoutMode] = useState<'form' | 'split' | 'preview'>(
     'split'
   )
@@ -66,9 +81,6 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
   const [body, setBody] = useState(content.body)
   const [tags, setTags] = useState(content.tags.join(', '))
   const [status, setStatus] = useState<ContentStatus>(content.status)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const originalDraftSnapshot = useMemo(
     () =>
@@ -160,12 +172,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
     setDraftToRestore(null)
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-    setMessage(null)
-
+  async function publishContentAction() {
     try {
       const updated = await contentService.updateContent({
         id: content.id,
@@ -175,14 +182,19 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
         status,
         tags: preview.tags,
       })
+
       onSave(updated)
-      setMessage('Conteúdo salvo com sucesso.')
+
+      return {
+        message: 'Conteúdo salvo com sucesso.',
+        error: null,
+      }
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'Não foi possível salvar.'
-      )
-    } finally {
-      setIsSubmitting(false)
+      return {
+        message: null,
+        error:
+          cause instanceof Error ? cause.message : 'Não foi possível salvar.',
+      }
     }
   }
 
@@ -247,10 +259,11 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                   </div>
                 </div>
               )}
-              <form className="space-y-4" onSubmit={handleSubmit}>
+              <form className="space-y-4" action={formAction}>
                 <label className="block space-y-2">
                   <span className="text-sm font-medium">Título</span>
                   <Input
+                    name="title"
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                   />
@@ -259,6 +272,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                 <label className="block space-y-2">
                   <span className="text-sm font-medium">Resumo</span>
                   <Input
+                    name="description"
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
                   />
@@ -267,6 +281,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                 <label className="block space-y-2">
                   <span className="text-sm font-medium">Corpo</span>
                   <Textarea
+                    name="body"
                     rows={10}
                     value={body}
                     onChange={(event) => setBody(event.target.value)}
@@ -277,6 +292,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                   <label className="block space-y-2">
                     <span className="text-sm font-medium">Tags</span>
                     <Input
+                      name="tags"
                       value={tags}
                       onChange={(event) => setTags(event.target.value)}
                     />
@@ -284,6 +300,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                   <label className="block space-y-2">
                     <span className="text-sm font-medium">Status</span>
                     <Select
+                      name="status"
                       value={status}
                       items={statusOptions}
                       onValueChange={(value) => {
@@ -309,14 +326,20 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                   className="flex min-h-8 flex-wrap items-center justify-between gap-3 pt-1"
                 >
                   <p className="text-sm" aria-live="polite">
-                    {error && <span className="text-destructive">{error}</span>}
-                    {message && (
-                      <span className="text-emerald-700">{message}</span>
+                    {formState?.error && (
+                      <span className="text-destructive">
+                        {formState.error}
+                      </span>
+                    )}
+
+                    {formState?.message && (
+                      <span className="text-emerald-700">
+                        {formState.message}
+                      </span>
                     )}
                   </p>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Salvando...' : 'Salvar'}
-                  </Button>
+
+                  <ContentSubmitButton />
                 </div>
               </form>
             </CardContent>
