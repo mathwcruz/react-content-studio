@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+
+import { cn } from '@/lib/cn'
 import { commentService } from '../../api/comments-service'
 import type { Comment } from '../../api/schemas'
 import { Button } from '../../components/ui/button'
@@ -6,53 +8,66 @@ import { Button } from '../../components/ui/button'
 type FeedbackActionsProps = {
   comment: Comment
   onChange: (comment: Comment) => void
+  onOptimisticUpdate: (comment: Comment) => void
 }
 
-export function FeedbackActions({ comment, onChange }: FeedbackActionsProps) {
-  const [pendingAction, setPendingAction] = useState<
-    'resolve' | 'archive' | null
-  >(null)
+export function FeedbackActions({
+  comment,
+  onChange,
+  onOptimisticUpdate,
+}: FeedbackActionsProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, startTransition] = useTransition()
+
   const [error, setError] = useState<string | null>(null)
 
-  async function runAction(action: 'resolve' | 'archive') {
-    setPendingAction(action)
+  function runAction(action: 'resolve' | 'archive') {
     setError(null)
-    try {
-      const next =
-        action === 'resolve'
-          ? await commentService.resolveComment(comment.id)
-          : await commentService.archiveComment(comment.id)
-      onChange(next)
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'Não foi possível moderar.'
-      )
-    } finally {
-      setPendingAction(null)
-    }
+
+    startTransition(async () => {
+      onOptimisticUpdate({
+        ...comment,
+        status: action === 'resolve' ? 'resolved' : 'archived',
+      })
+
+      try {
+        const nextComment =
+          action === 'resolve'
+            ? await commentService.resolveComment(comment.id)
+            : await commentService.archiveComment(comment.id)
+
+        startTransition(() => {
+          onChange(nextComment)
+        })
+      } catch (cause) {
+        onOptimisticUpdate(comment)
+
+        startTransition(() => {
+          setError(
+            cause instanceof Error ? cause.message : 'Não foi possível moderar.'
+          )
+        })
+      }
+    })
   }
 
   return (
-    <div className="space-y-2">
+    <div className={cn('"space-y-2"', comment.status !== 'open' && 'hidden')}>
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => runAction('resolve')}
-          disabled={pendingAction !== null || comment.status === 'resolved'}
-        >
-          {pendingAction === 'resolve' ? 'Resolvendo...' : 'Resolver'}
+        <Button type="button" size="sm" onClick={() => runAction('resolve')}>
+          Resolver
         </Button>
+
         <Button
           type="button"
           size="sm"
           variant="outline"
           onClick={() => runAction('archive')}
-          disabled={pendingAction !== null || comment.status === 'archived'}
         >
-          {pendingAction === 'archive' ? 'Arquivando...' : 'Arquivar'}
+          Arquivar
         </Button>
       </div>
+
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   )
