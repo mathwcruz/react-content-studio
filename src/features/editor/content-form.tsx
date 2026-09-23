@@ -1,22 +1,24 @@
-import { useActionState, useEffect, useMemo, useState } from 'react'
+import {
+  useActionState,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useState,
+} from 'react'
 
-import type { Content, ContentStatus } from '../../api/schemas'
-import { Button } from '../../components/ui/button'
+import type { Content, ContentStatus } from '@/api/schemas'
+import { contentService } from '@/api/content-service'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../components/ui/select'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../../components/ui/card'
-import { Input } from '../../components/ui/input'
-import { Textarea } from '../../components/ui/textarea'
+} from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { EditorPreviewPanel } from './editor-preview-panel'
 import {
   clearLocalDraft,
@@ -25,7 +27,6 @@ import {
   type LocalDraft,
 } from './local-draft'
 import { ContentSubmitButton } from './content-submit-button'
-import { contentService } from '@/api/content-service'
 
 type ContentFormProps = {
   content: Content
@@ -124,41 +125,46 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
       .filter(Boolean),
   }
 
-  useEffect(() => {
-    function saveDraft() {
-      const normalizedDraft = normalizeDraft(draftValue)
+  const saveDraft = useEffectEvent(() => {
+    const normalizedDraft = normalizeDraft(draftValue)
 
-      if (normalizedDraft === originalDraftSnapshot) {
-        if (!draftToRestore) {
-          clearLocalDraft(content.id)
-          setSavedAt(null)
-        }
-        return
+    if (normalizedDraft === originalDraftSnapshot) {
+      if (!draftToRestore) {
+        clearLocalDraft(content.id)
+        setSavedAt(null)
       }
-
-      const storedDraft = readLocalDraft(content.id)
-      if (storedDraft && normalizeDraft(storedDraft) === normalizedDraft) {
-        return
-      }
-
-      const draft = { ...draftValue, savedAt: new Date().toISOString() }
-      writeLocalDraft(content.id, draft)
-      setDraftToRestore(null)
-      setSavedAt(
-        new Date(draft.savedAt).toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })
-      )
+      return
     }
 
+    const storedDraft = readLocalDraft(content.id)
+
+    if (storedDraft && normalizeDraft(storedDraft) === normalizedDraft) {
+      return
+    }
+
+    const draft = { ...draftValue, savedAt: new Date().toISOString() }
+
+    writeLocalDraft(content.id, draft)
+    setDraftToRestore(null)
+
+    setSavedAt(
+      new Date(draft.savedAt).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    )
+  })
+
+  useEffect(() => {
     const interval = window.setInterval(saveDraft, 3000)
+
     return () => window.clearInterval(interval)
-  }, [content.id, draftValue, originalDraftSnapshot, draftToRestore])
+  }, [content.id])
 
   function handleRestoreDraft() {
     if (!draftToRestore) return
+
     setTitle(draftToRestore.title)
     setDescription(draftToRestore.description)
     setBody(draftToRestore.body)
@@ -236,10 +242,12 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                   : 'Autosave local ativo'}
               </p>
             </CardHeader>
+
             <CardContent>
               {draftToRestore && (
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-studio-border bg-studio-accent p-3 text-sm text-studio-accent-fg">
                   <span>Há um rascunho local salvo para este conteúdo.</span>
+
                   <div className="flex gap-2">
                     <Button
                       type="button"
@@ -248,6 +256,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                     >
                       Restaurar
                     </Button>
+
                     <Button
                       type="button"
                       size="sm"
@@ -259,9 +268,11 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                   </div>
                 </div>
               )}
+
               <form className="space-y-4" action={formAction}>
                 <label className="block space-y-2">
                   <span className="text-sm font-medium">Título</span>
+
                   <Input
                     name="title"
                     value={title}
@@ -271,6 +282,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
 
                 <label className="block space-y-2">
                   <span className="text-sm font-medium">Resumo</span>
+
                   <Input
                     name="description"
                     value={description}
@@ -280,6 +292,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
 
                 <label className="block space-y-2">
                   <span className="text-sm font-medium">Corpo</span>
+
                   <Textarea
                     name="body"
                     rows={10}
@@ -291,14 +304,17 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                 <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
                   <label className="block space-y-2">
                     <span className="text-sm font-medium">Tags</span>
+
                     <Input
                       name="tags"
                       value={tags}
                       onChange={(event) => setTags(event.target.value)}
                     />
                   </label>
+
                   <label className="block space-y-2">
                     <span className="text-sm font-medium">Status</span>
+
                     <Select
                       name="status"
                       value={status}
@@ -310,6 +326,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione um status" />
                       </SelectTrigger>
+
                       <SelectContent>
                         {statusOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
