@@ -1,4 +1,5 @@
 import {
+  Activity,
   useActionState,
   useEffect,
   useEffectEvent,
@@ -208,6 +209,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
     <div className="space-y-4">
       <fieldset className="flex flex-wrap gap-2 rounded-2xl border border-studio-border bg-studio-card p-2">
         <legend className="sr-only">Modo de layout</legend>
+
         {layoutOptions.map((option) => (
           <label
             key={option.value}
@@ -232,7 +234,13 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
             : 'grid gap-5'
         }
       >
-        {(layoutMode === 'form' || layoutMode === 'split') && (
+        <Activity
+          mode={
+            layoutMode === 'form' || layoutMode === 'split'
+              ? 'visible'
+              : 'hidden'
+          }
+        >
           <Card className="border-studio-border bg-studio-card/90">
             <CardHeader>
               <CardTitle>Editar conteúdo</CardTitle>
@@ -361,7 +369,7 @@ export function ContentForm({ content, onSave }: ContentFormProps) {
               </form>
             </CardContent>
           </Card>
-        )}
+        </Activity>
 
         {(layoutMode === 'preview' || layoutMode === 'split') && (
           <EditorPreviewPanel content={preview} />
