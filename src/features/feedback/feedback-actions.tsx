@@ -1,9 +1,9 @@
 import { useState, useTransition } from 'react'
 
 import { cn } from '@/lib/cn'
-import { commentService } from '../../api/comments-service'
-import type { Comment } from '../../api/schemas'
-import { Button } from '../../components/ui/button'
+import { commentService } from '@/api/comments-service'
+import type { Comment } from '@/api/schemas'
+import { Button } from '@/components/ui/button'
 
 type FeedbackActionsProps = {
   comment: Comment

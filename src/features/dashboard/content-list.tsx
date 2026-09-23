@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
-import type { Content } from '../../api/schemas'
-import { StatusBadge } from '../../components/status-badge'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent } from '../../components/ui/card'
-import { formatRelativeDate } from '../../lib/date'
+import type { Content } from '@/api/schemas'
+import { StatusBadge } from '@/components/status-badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { formatRelativeDate } from '@/lib/date'
 
 export function ContentList({ contents }: { contents: Content[] }) {
   return (

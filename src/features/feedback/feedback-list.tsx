@@ -1,9 +1,9 @@
 import { useOptimistic } from 'react'
 
-import { formatRelativeDate } from '../../lib/date'
-import type { Comment } from '../../api/schemas'
-import { StatusBadge } from '../../components/status-badge'
-import { Card, CardContent } from '../../components/ui/card'
+import { formatRelativeDate } from '@/lib/date'
+import type { Comment } from '@/api/schemas'
+import { StatusBadge } from '@/components/status-badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { FeedbackActions } from './feedback-actions'
 
 type FeedbackListProps = {

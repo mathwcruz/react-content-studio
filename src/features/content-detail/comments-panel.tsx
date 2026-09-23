@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react'
-import { commentService } from '../../api/comments-service'
-import type { Comment } from '../../api/schemas'
-import { StatusBadge } from '../../components/status-badge'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../../components/ui/card'
-import { Skeleton } from '../../components/ui/skeleton'
-import { formatRelativeDate } from '../../lib/date'
+import { commentService } from '@/api/comments-service'
+import type { Comment } from '@/api/schemas'
+import { StatusBadge } from '@/components/status-badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatRelativeDate } from '@/lib/date'
 
 export function CommentsPanel({ contentId }: { contentId: string }) {
   const [comments, setComments] = useState<Comment[]>([])

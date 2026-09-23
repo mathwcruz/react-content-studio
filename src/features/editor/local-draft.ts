@@ -1,4 +1,4 @@
-import type { ContentStatus } from '../../api/schemas'
+import type { ContentStatus } from '@/api/schemas'
 
 export type LocalDraft = {
   title: string

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { contentService } from '../../api/content-service'
-import { AppRoutes } from '../../app/router'
+import { contentService } from '@/api/content-service'
+import { AppRoutes } from '@/app/router'
 
 it('renders detail for a seeded content', async () => {
   localStorage.clear()

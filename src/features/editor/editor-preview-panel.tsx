@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import type { Content } from '../../api/schemas'
+import type { Content } from '@/api/schemas'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../components/ui/card'
+} from '@/components/ui/card'
 
 type PreviewContent = Pick<Content, 'title' | 'description' | 'body' | 'tags'>
 

@@ -1,6 +1,6 @@
-import type { Content } from '../../api/schemas'
-import { StatusBadge } from '../../components/status-badge'
-import { Card, CardContent } from '../../components/ui/card'
+import type { Content } from '@/api/schemas'
+import { StatusBadge } from '@/components/status-badge'
+import { Card, CardContent } from '@/components/ui/card'
 
 export function RichPreview({ content }: { content: Content }) {
   return (

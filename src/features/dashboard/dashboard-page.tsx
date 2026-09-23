@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import { contentService } from '../../api/content-service'
-import { commentService } from '../../api/comments-service'
-import type { Comment, Content } from '../../api/schemas'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent } from '../../components/ui/card'
-import { ErrorState } from '../../components/error-state'
-import { Skeleton } from '../../components/ui/skeleton'
+
+import { contentService } from '@/api/content-service'
+import { commentService } from '@/api/comments-service'
+import type { Comment, Content } from '@/api/schemas'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { ErrorState } from '@/components/error-state'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ContentList } from './content-list'
 
 export function DashboardPage() {
@@ -17,7 +18,9 @@ export function DashboardPage() {
 
   useEffect(() => {
     let isMounted = true
+
     loadDashboard()
+
     return () => {
       isMounted = false
     }
@@ -25,16 +28,20 @@ export function DashboardPage() {
     async function loadDashboard() {
       setIsLoading(true)
       setError(null)
+
       try {
         const [contentData, commentData] = await Promise.all([
           contentService.getContents(),
           commentService.getComments(),
         ])
+
         if (!isMounted) return
+
         setContents(contentData)
         setComments(commentData)
       } catch (cause) {
         if (!isMounted) return
+
         setError(
           cause instanceof Error
             ? cause.message
@@ -49,6 +56,7 @@ export function DashboardPage() {
   function handleRetry() {
     setIsLoading(true)
     setError(null)
+
     Promise.all([contentService.getContents(), commentService.getComments()])
       .then(([contentData, commentData]) => {
         setContents(contentData)
@@ -75,12 +83,15 @@ export function DashboardPage() {
   const publishedCount = contents.filter(
     (content) => content.status === 'published'
   ).length
+
   const reviewCount = contents.filter(
     (content) => content.status === 'review'
   ).length
+
   const draftCount = contents.filter(
     (content) => content.status === 'draft'
   ).length
+
   const openFeedbackCount = comments.filter(
     (comment) => comment.status === 'open'
   ).length
@@ -92,6 +103,7 @@ export function DashboardPage() {
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
             Dashboard
           </p>
+
           <h2 className="mt-2 text-3xl font-semibold tracking-tight">
             Visão geral
           </h2>
@@ -113,6 +125,7 @@ export function DashboardPage() {
         <section className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">Prioridades</h3>
+
             <Button
               render={<Link to="/contents" />}
               nativeButton={false}
@@ -122,6 +135,7 @@ export function DashboardPage() {
               Abrir biblioteca
             </Button>
           </div>
+
           <ContentList contents={priorityContents} />
         </section>
       ) : (
@@ -137,11 +151,15 @@ export function DashboardPage() {
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <Card className="border-studio-border bg-studio-card/85">
-      <CardContent className="p-4">
-        <p className="text-sm text-studio-muted">{label}</p>
-        <p className="mt-2 text-3xl font-semibold">{value}</p>
-      </CardContent>
-    </Card>
+    <>
+      <title>Content Studio - Dashboard</title>
+
+      <Card className="border-studio-border bg-studio-card/85">
+        <CardContent className="p-4">
+          <p className="text-sm text-studio-muted">{label}</p>
+          <p className="mt-2 text-3xl font-semibold">{value}</p>
+        </CardContent>
+      </Card>
+    </>
   )
 }

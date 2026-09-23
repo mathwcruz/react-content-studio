@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { AppRoutes } from '../../app/router'
+import { AppRoutes } from '@/app/router'
 
 it('renders the editor for a seeded content', async () => {
   localStorage.clear()

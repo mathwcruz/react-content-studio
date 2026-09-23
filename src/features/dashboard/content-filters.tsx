@@ -1,6 +1,6 @@
-import type { ContentStatus } from '../../api/schemas'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
+import type { ContentStatus } from '@/api/schemas'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const statusOptions: Array<{ label: string; value: ContentStatus | 'all' }> = [
   { label: 'Todos', value: 'all' },

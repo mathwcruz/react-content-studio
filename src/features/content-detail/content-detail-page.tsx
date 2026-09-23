@@ -16,6 +16,7 @@ const MetricsPanel = lazy(() =>
 
 export function ContentDetailPage() {
   const { contentId } = useParams()
+
   const [content, setContent] = useState<Content | null>(null)
 
   useEffect(() => {
@@ -37,44 +38,48 @@ export function ContentDetailPage() {
   if (!content) return <p>Conteúdo não encontrado.</p>
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
-            Detalhe
-          </p>
+    <>
+      <title>{`Content Studio - ${content.title}`}</title>
 
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-            Central editorial
-          </h1>
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-studio-muted">
+              Detalhe
+            </p>
+
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+              Central editorial
+            </h1>
+          </div>
+
+          <Button
+            render={<Link to={`/contents/${content.id}/edit`} />}
+            nativeButton={false}
+            variant="outline"
+          >
+            Editar
+          </Button>
         </div>
 
-        <Button
-          render={<Link to={`/contents/${content.id}/edit`} />}
-          nativeButton={false}
-          variant="outline"
-        >
-          Editar
-        </Button>
-      </div>
+        <RichPreview content={content} />
 
-      <RichPreview content={content} />
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.75fr)]">
+          <CommentsPanel contentId={content.id} />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.75fr)]">
-        <CommentsPanel contentId={content.id} />
-
-        <ErrorBoundary
-          fallbackRender={({ error }) => (
-            <ErrorState message={getErrorMessage(error) || ''} />
-          )}
-        >
-          <Suspense
-            fallback={<Skeleton className="h-28 w-full bg-studio-card/95" />}
+          <ErrorBoundary
+            fallbackRender={({ error }) => (
+              <ErrorState message={getErrorMessage(error) || ''} />
+            )}
           >
-            <MetricsPanel contentId={content.id} />
-          </Suspense>
-        </ErrorBoundary>
+            <Suspense
+              fallback={<Skeleton className="h-28 w-full bg-studio-card/95" />}
+            >
+              <MetricsPanel contentId={content.id} />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
